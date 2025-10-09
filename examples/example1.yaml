@@ -1,0 +1,23 @@
+inclusion_criteria:
+  demographics:
+    gender: 'male'
+    min_birth_year: 1961
+    max_birth_year: 2007
+  temporal_events:
+  - operator: 'BEFORE'
+    events:
+    - operator: 'BEFORE'
+      events:
+      - operator: 'OR'
+        events:
+        - event_type: 'condition_occurrence'
+          event_concept_id: 201826
+          event_instance: -1
+        - event_type: 'condition_occurrence'
+          event_concept_id: 201254
+          event_instance: -1
+      - event_type: 'visit_occurrence'
+        event_concept_id: 9201
+        offset: 180
+    - event_type: 'condition_occurrence'
+      event_concept_id: 37311061

@@ -1,0 +1,9 @@
+inclusion_criteria:
+  temporal_events:
+  - operator: 'AFTER'
+    events:
+    - event_type: 'visit_occurrence'
+      event_concept_id: 9201
+      offset: 90
+    - event_type: 'condition_occurrence'
+      event_concept_id: 201826

@@ -1,0 +1,9 @@
+inclusion_criteria:
+  demographics:
+    gender: 'male'
+    max_birth_year: 1990
+  temporal_events:
+  - operator: 'AND'
+    events:
+    - event_type: 'condition_occurrence'
+      event_concept_id: 316139
