@@ -1,4 +1,4 @@
-# Python_to_YAML
+# BiasAnalyzerYAMLBuilder (Python to YAML)
 
 A Python-based DSL for generating **YAML cohort definition files** compatible with [BiasAnalyzer](https://github.com/VACLab/BiasAnalyzer).  
 It allows researchers to construct complex cohort logic (e.g., temporal relationships, event sequences, logical filters) directly from Python.
