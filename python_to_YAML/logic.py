@@ -30,9 +30,7 @@ def _require_exact_arity(fn_name: str, got: int, expected: int) -> None:
         raise ValueError(f"{fn_name}() requires exactly {expected} operand(s), got {got}.")
 
 
-# -------------------------
-# Binary logical operators
-# -------------------------
+# AND & OR
 def AND(a: Operand, b: Operand) -> TemporalBlock:
     """Conjunction (strictly 2 operands)."""
     _require_exact_arity("AND", 2, 2)
@@ -50,9 +48,7 @@ def OR(a: Operand, b: Operand) -> TemporalBlock:
     return TemporalBlock(operator="OR", events=[a_yaml, b_yaml], _token=TOKEN)
 
 
-# -------------------------
-# Temporal binary operators
-# -------------------------
+# BEFORE
 def BEFORE(a: Operand, b: Operand, b_offset: Optional[int] = None) -> dict:
     """
     'a BEFORE b' (strictly 2 operands).
@@ -66,22 +62,7 @@ def BEFORE(a: Operand, b: Operand, b_offset: Optional[int] = None) -> dict:
     return {"operator": SingleQuoted("BEFORE"), "events": [left, right]}
 
 
-def AFTER(a: Operand, b: Operand, a_offset: Optional[int] = None) -> dict:
-    """
-    'a AFTER b' (strictly 2 operands).
-    If a_offset is provided, attach it to the first event as `offset: <a_offset>`.
-    """
-    _require_exact_arity("AFTER", 2, 2)
-    left = _as_yaml(a)
-    right = _as_yaml(b)
-    if a_offset is not None:
-        left = {**left, "offset": int(a_offset)}
-    return {"operator": SingleQuoted("AFTER"), "events": [left, right]}
-
-
-# -------------------------
-# Unary logical operator
-# -------------------------
+# NOT
 def NOT(x: Operand) -> dict:
     """Negation (strictly 1 operand)."""
     _require_exact_arity("NOT", 1, 1)

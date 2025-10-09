@@ -86,7 +86,7 @@ class TemporalBlock:
     operator: str # 'AND' | 'OR' | 'NOT' | 'BEFORE' | 'AFTER'
     events: List[Union[Event, Dict[str, Any]]] = field(default_factory=list)
     interval: Optional[List[int]] = None
-    _token: object = field(default=None, repr=False, compare=False)  # 内部令牌
+    _token: object = field(default=None, repr=False, compare=False)
 
     def __post_init__(self):
 
