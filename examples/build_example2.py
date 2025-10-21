@@ -20,4 +20,4 @@ cohort = CohortYAML(
 )
 
 # 4. Dump YAML file
-cohort.dump_yaml("examples/example2.yaml")
+cohort.save_yaml("examples/example2.yaml")

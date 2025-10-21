@@ -20,7 +20,7 @@ def __getattr__(name):
         return getattr(_builder, name)
 
     # logic.py（AND/OR/BEFORE)
-    if name in {"AND","OR","BEFORE","AFTER"}:
+    if name in {"AND","OR","BEFORE","NOT"}:
         from . import logic as _logic
         return getattr(_logic, name)
 

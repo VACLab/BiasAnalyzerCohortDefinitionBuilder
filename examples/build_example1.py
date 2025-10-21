@@ -35,4 +35,4 @@ cohort = CohortYAML(
     demographics=demo,
     temporal_blocks=[outer],
 )
-cohort.dump_yaml("examples/example1.yaml")
+cohort.save_yaml("examples/example1.yaml")

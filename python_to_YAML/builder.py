@@ -182,7 +182,7 @@ class CohortYAML:
 
         return out
 
-    def dump_yaml(self, path: Union[str, Path]) -> Path:
+    def save_yaml(self, path: Union[str, Path]) -> Path:
         p = Path(path)
         p.write_text(yaml.dump(self.to_dict(),
                                sort_keys=False,

@@ -7,7 +7,7 @@ from python_to_YAML import (
     ConditionOccurrence,
     VisitOccurrence,
     CohortYAML,
-    AFTER,
+    BEFORE,
 )
 
 # 1. Define the demographic filters
@@ -15,7 +15,7 @@ dm = ConditionOccurrence(event_concept_id=201826)   # Diabetes Mellitus
 ip = VisitOccurrence(event_concept_id=9201)         # Inpatient visit
 
 # 2. Define the event
-visit_after_dm = AFTER(ip, dm, a_offset=90)         # strict binary operator
+visit_after_dm = BEFORE(ip, dm, offset=90)
 
 # 3. Build the cohort YAML object
 cohort = CohortYAML(
@@ -23,4 +23,4 @@ cohort = CohortYAML(
 )
 
 # 4. Dump YAML file
-cohort.dump_yaml("examples/example3.yaml")
+cohort.save_yaml("examples/example3.yaml")

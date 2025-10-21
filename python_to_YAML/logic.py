@@ -49,17 +49,17 @@ def OR(a: Operand, b: Operand) -> TemporalBlock:
 
 
 # BEFORE
-def BEFORE(a: Operand, b: Operand, b_offset: Optional[int] = None) -> dict:
+def BEFORE(a: Operand, b: Operand, offset: Optional[int] = None) -> dict:
     """
     'a BEFORE b' (strictly 2 operands).
     If b_offset is provided, attach it to the second event as `offset: <b_offset>`.
     """
     _require_exact_arity("BEFORE", 2, 2)
-    left = _as_yaml(a)
-    right = _as_yaml(b)
-    if b_offset is not None:
-        right = {**right, "offset": int(b_offset)}
-    return {"operator": SingleQuoted("BEFORE"), "events": [left, right]}
+    a_yaml = _as_yaml(a)
+    b_yaml = _as_yaml(b)
+    if offset is not None:
+        b_yaml = {**b_yaml, "offset": int(offset)}
+    return {"operator": SingleQuoted("BEFORE"), "events": [a_yaml, b_yaml]}
 
 
 # NOT
