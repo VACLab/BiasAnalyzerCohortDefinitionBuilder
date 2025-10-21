@@ -140,45 +140,50 @@ class CohortYAML:
     temporal_blocks: Optional[List[Union[Dict[str, Any], Event, "TemporalBlock"]]] = None
     demographics: Optional[Demographics] = None
 
+    # NEW: exclusion side (mirrors inclusion temporal blocks)
+    exclusion_blocks: Optional[List[Union[Dict[str, Any], Event, "TemporalBlock"]]] = None
+
+    def _build_temporal_section(self, blocks: List[Union[Event, Dict[str, Any], "TemporalBlock"]]) -> List[Dict[str, Any]]:
+        """
+        Build a normalized 'temporal_events' list following the existing rules:
+          - 0 blocks  -> []
+          - 1 block   -> if it already has 'operator', emit as-is; else wrap with top-level AND
+          - >=2 blocks-> wrap with top-level AND containing all blocks
+        """
+        normalized = [_as_yaml(x) for x in blocks if x is not None]
+        if not normalized:
+            return []
+        if len(normalized) == 1:
+            item = normalized[0]
+            if isinstance(item, dict) and "operator" in item:
+                return [item]
+            return [{"operator": SingleQuoted("AND"), "events": [item]}]
+        return [{"operator": SingleQuoted("AND"), "events": normalized}]
+
     def to_dict(self) -> Dict[str, Any]:
         """
-        Emit 'demographics' first, then 'temporal_events' following the rule:
-          - 0 blocks  -> omit 'temporal_events'
-          - 1 block   -> if it has 'operator', emit as-is; else wrap with top-level AND
-          - >=2 blocks-> wrap with top-level AND
+        Keep existing inclusion behavior; add 'exclusion_criteria' if provided.
         """
         out: Dict[str, Any] = {"inclusion_criteria": {}}
         ic = out["inclusion_criteria"]
 
-        # 1) demographics first (keep insertion order)
+        # 1) demographics first (unchanged)
         if self.demographics:
             demo = self.demographics.to_yaml()
             if demo:
                 ic["demographics"] = demo
 
-        # 2) temporal events
+        # 2) inclusion temporal_events (unchanged behavior)
         if self.temporal_blocks:
-            normalized = [_as_yaml(x) for x in self.temporal_blocks if x is not None]
-            if not normalized:
-                return out
+            inc_ts = self._build_temporal_section(self.temporal_blocks)
+            if inc_ts:
+                ic["temporal_events"] = inc_ts
 
-            if len(normalized) == 1:
-                item = normalized[0]
-                if isinstance(item, dict) and "operator" in item:
-                    # single operator block -> emit as-is
-                    ic["temporal_events"] = [item]
-                else:
-                    # single event (no operator) -> wrap with top-level AND
-                    ic["temporal_events"] = [{
-                        "operator": SingleQuoted("AND"),
-                        "events": [item],
-                    }]
-            else:
-                # multiple blocks -> wrap with top-level AND
-                ic["temporal_events"] = [{
-                    "operator": SingleQuoted("AND"),
-                    "events": normalized,
-                }]
+        # 3) exclusion criteria: temporal_events only (for now)
+        if self.exclusion_blocks:
+            exc_ts = self._build_temporal_section(self.exclusion_blocks)
+            if exc_ts:
+                out["exclusion_criteria"] = {"temporal_events": exc_ts}
 
         return out
 
