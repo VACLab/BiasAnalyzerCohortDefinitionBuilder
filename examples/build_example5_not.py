@@ -20,5 +20,5 @@ cohort = CohortYAML(
     temporal_blocks=[not_hf]
 )
 
+print(cohort.to_yaml())
 cohort.save_yaml("examples/example5.yaml")
-print(cohort)

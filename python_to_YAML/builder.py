@@ -212,6 +212,30 @@ class CohortYAML:
 
         return out
 
+    def to_yaml(self, sort_keys: bool = False, as_object: bool = False):
+        """
+        Convert cohort definition to YAML or Python object.
+
+        Parameters
+        ----------
+        sort_keys : bool, optional
+            Whether to sort YAML keys alphabetically (default False).
+        as_object : bool, optional
+            If True, return parsed Python dict (YAML -> dict),
+            otherwise return YAML-formatted string.
+        """
+        yaml_str = yaml.dump(
+            self.to_dict(),
+            sort_keys=sort_keys,
+            allow_unicode=True,
+            indent=2,
+            default_flow_style=False,
+        )
+
+        if as_object:
+            return yaml.safe_load(yaml_str)
+        return yaml_str
+    
     def save_yaml(self, path: Union[str, Path]) -> Path:
         p = Path(path)
         p.write_text(yaml.dump(self.to_dict(),

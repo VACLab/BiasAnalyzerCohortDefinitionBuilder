@@ -1,0 +1,27 @@
+inclusion_criteria:
+  demographics:
+    gender: 'female'
+    min_birth_year: 2000
+    max_birth_year: 2020
+  temporal_events:
+  - operator: 'BEFORE'
+    events:
+    - event_type: 'condition_occurrence'
+      event_concept_id: 4041664
+    - operator: 'AND'
+      events:
+      - operator: 'BEFORE'
+        events:
+        - event_type: date
+          timestamp: '2020-03-15'
+        - event_type: 'condition_occurrence'
+          event_concept_id: 37311061
+      - operator: 'BEFORE'
+        events:
+        - event_type: 'condition_occurrence'
+          event_concept_id: 37311061
+        - event_type: date
+          timestamp: '2020-12-11'
+    interval:
+    - 2
+    - 5
