@@ -8,14 +8,13 @@ High-level logical helpers for building cohort queries.
 - AFTER(a, b, a_offset=None)  -> dict // currently not implemented
 """
 
-from typing import Union, Optional
+from typing import Union, Optional, Iterable, Tuple
 from python_to_YAML.builder import TemporalBlock, TOKEN, SingleQuoted
 from python_to_YAML.events import Event
 
 Operand = Union[Event, TemporalBlock, dict]
 
 def _as_yaml(x: Operand) -> dict:
-    """Normalize one operand to a plain YAML dict."""
     if isinstance(x, Event):
         return x.to_yaml_event()
     if isinstance(x, TemporalBlock):
@@ -24,47 +23,42 @@ def _as_yaml(x: Operand) -> dict:
         return x
     raise TypeError(f"Unsupported operand type: {type(x)}")
 
-
 def _require_exact_arity(fn_name: str, got: int, expected: int) -> None:
     if got != expected:
         raise ValueError(f"{fn_name}() requires exactly {expected} operand(s), got {got}.")
 
+# ---------- Strict-arity operators ----------
 
-# AND & OR
-def AND(a: Operand, b: Operand) -> TemporalBlock:
-    """Conjunction (strictly 2 operands)."""
-    _require_exact_arity("AND", 2, 2)
-    a_yaml = _as_yaml(a)
-    b_yaml = _as_yaml(b)
-    # Pack two YAML operands into a TemporalBlock (token-gated)
+def AND(*ops: Operand) -> TemporalBlock:
+    """Binary conjunction (exactly 2 operands)."""
+    _require_exact_arity("AND", len(ops), 2)
+    a_yaml = _as_yaml(ops[0])
+    b_yaml = _as_yaml(ops[1])
     return TemporalBlock(operator="AND", events=[a_yaml, b_yaml], _token=TOKEN)
 
-
-def OR(a: Operand, b: Operand) -> TemporalBlock:
-    """Disjunction (strictly 2 operands)."""
-    _require_exact_arity("OR", 2, 2)
-    a_yaml = _as_yaml(a)
-    b_yaml = _as_yaml(b)
+def OR(*ops: Operand) -> TemporalBlock:
+    """Binary disjunction (exactly 2 operands)."""
+    _require_exact_arity("OR", len(ops), 2)
+    a_yaml = _as_yaml(ops[0])
+    b_yaml = _as_yaml(ops[1])
     return TemporalBlock(operator="OR", events=[a_yaml, b_yaml], _token=TOKEN)
 
-
-# BEFORE
 def BEFORE(a: Operand, b: Operand, offset: Optional[int] = None) -> dict:
     """
-    'a BEFORE b' (strictly 2 operands).
-    If b_offset is provided, attach it to the second event as `offset: <b_offset>`.
+    'a BEFORE b' (exactly 2 operands).
+    If `offset` is provided, attach to the second event as `offset: <int>`.
     """
-    _require_exact_arity("BEFORE", 2, 2)
+    _require_exact_arity("BEFORE", 2, 2)  # signature enforces 2, keep runtime check for consistency
     a_yaml = _as_yaml(a)
     b_yaml = _as_yaml(b)
     if offset is not None:
         b_yaml = {**b_yaml, "offset": int(offset)}
     return {"operator": SingleQuoted("BEFORE"), "events": [a_yaml, b_yaml]}
 
-
-# NOT
-def NOT(x: Operand) -> dict:
-    """Negation (strictly 1 operand)."""
-    _require_exact_arity("NOT", 1, 1)
+def NOT(x: Operand, *rest: Operand) -> dict:
+    """Unary negation (exactly 1 operand)."""
+    # If users mistakenly pass extra operands, surface a consistent ValueError
+    if rest:
+        _require_exact_arity("NOT", 1 + len(rest), 1)
     x_yaml = _as_yaml(x)
     return {"operator": SingleQuoted("NOT"), "events": [x_yaml]}

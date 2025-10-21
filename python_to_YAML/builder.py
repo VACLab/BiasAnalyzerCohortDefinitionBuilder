@@ -80,24 +80,37 @@ class TemporalBlock:
         block["events"] = evs
         return block
         '''
+
+def _assert_operator_arity_or_raise(op: str, events_len: int) -> None:
+    """Guardrail: ensure operator has exactly the required number of events."""
+    if op in {"AND", "OR", "BEFORE", "AFTER"}:
+        expected = 2
+    elif op == "NOT":
+        expected = 1
+    else:
+        # Unknown operator: be conservative and do not enforce (or choose to raise)
+        return
+    if events_len != expected:
+        raise ValueError(f"Operator {op!r} requires exactly {expected} event(s), got {events_len}.")
+
     
 @dataclass
 class TemporalBlock:
-    operator: str # 'AND' | 'OR' | 'NOT' | 'BEFORE' | 'AFTER'
+    operator: str
     events: List[Union[Event, Dict[str, Any]]] = field(default_factory=list)
     interval: Optional[List[int]] = None
     _token: object = field(default=None, repr=False, compare=False)
 
     def __post_init__(self):
-
         if self._token is not TOKEN:
             raise TypeError(
                 "Do not instantiate TemporalBlock directly. "
                 "Use python_to_YAML.logic.AND(...) or OR(...) instead."
             )
+        _assert_operator_arity_or_raise(self.operator, len(self.events))  # NEW: guard
 
     def to_yaml(self) -> Dict[str, Any]:
-
+        _assert_operator_arity_or_raise(self.operator, len(self.events))  # NEW: guard
         block: Dict[str, Any] = {"operator": SingleQuoted(self.operator)}
         if self.interval is not None:
             block["interval"] = FlowList(self.interval)
@@ -137,18 +150,20 @@ yaml.add_representer(SingleQuoted, _single_quoted_str_representer)
 
 @dataclass
 class CohortYAML:
+    # Inclusion side (already existed)
     temporal_blocks: Optional[List[Union[Dict[str, Any], Event, "TemporalBlock"]]] = None
     demographics: Optional[Demographics] = None
 
-    # NEW: exclusion side (mirrors inclusion temporal blocks)
+    # NEW: Exclusion side (to support exclusion_criteria in YAML)
     exclusion_blocks: Optional[List[Union[Dict[str, Any], Event, "TemporalBlock"]]] = None
+    exclusion_demographics: Optional[Demographics] = None
 
     def _build_temporal_section(self, blocks: List[Union[Event, Dict[str, Any], "TemporalBlock"]]) -> List[Dict[str, Any]]:
         """
-        Build a normalized 'temporal_events' list following the existing rules:
-          - 0 blocks  -> []
-          - 1 block   -> if it already has 'operator', emit as-is; else wrap with top-level AND
-          - >=2 blocks-> wrap with top-level AND containing all blocks
+        Normalize a list of temporal blocks to a 'temporal_events' array:
+        - 0 blocks  -> []
+        - 1 block   -> emit as-is if it already has 'operator'; else wrap with top-level AND
+        - >=2 blocks-> emit as PARALLEL groups (NO extra top-level AND wrapper)
         """
         normalized = [_as_yaml(x) for x in blocks if x is not None]
         if not normalized:
@@ -158,32 +173,42 @@ class CohortYAML:
             if isinstance(item, dict) and "operator" in item:
                 return [item]
             return [{"operator": SingleQuoted("AND"), "events": [item]}]
-        return [{"operator": SingleQuoted("AND"), "events": normalized}]
+        # FIX: multiple groups -> return as-is (parallel), no extra wrapper
+        return normalized
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Keep existing inclusion behavior; add 'exclusion_criteria' if provided.
+        Emit 'inclusion_criteria' (demographics first, then temporal_events) and,
+        if provided, 'exclusion_criteria' (optional demographics and temporal_events).
         """
         out: Dict[str, Any] = {"inclusion_criteria": {}}
         ic = out["inclusion_criteria"]
 
-        # 1) demographics first (unchanged)
+        # Inclusion demographics
         if self.demographics:
             demo = self.demographics.to_yaml()
             if demo:
                 ic["demographics"] = demo
 
-        # 2) inclusion temporal_events (unchanged behavior)
+        # Inclusion temporal_events
         if self.temporal_blocks:
-            inc_ts = self._build_temporal_section(self.temporal_blocks)
-            if inc_ts:
-                ic["temporal_events"] = inc_ts
+            inc_te = self._build_temporal_section(self.temporal_blocks)
+            if inc_te:
+                ic["temporal_events"] = inc_te
 
-        # 3) exclusion criteria: temporal_events only (for now)
-        if self.exclusion_blocks:
-            exc_ts = self._build_temporal_section(self.exclusion_blocks)
-            if exc_ts:
-                out["exclusion_criteria"] = {"temporal_events": exc_ts}
+        # Exclusion criteria (demographics + temporal_events)
+        if self.exclusion_demographics or self.exclusion_blocks:
+            exc: Dict[str, Any] = {}
+            if self.exclusion_demographics:
+                ed = self.exclusion_demographics.to_yaml()
+                if ed:
+                    exc["demographics"] = ed
+            if self.exclusion_blocks:
+                exc_te = self._build_temporal_section(self.exclusion_blocks)
+                if exc_te:
+                    exc["temporal_events"] = exc_te
+            if exc:
+                out["exclusion_criteria"] = exc
 
         return out
 
