@@ -25,7 +25,7 @@ ip = VisitOccurrence(event_concept_id=9201)          # Inpatient visit
 covid = ConditionOccurrence(event_concept_id=37311061)  # COVID-19
 
 # (last DM) BEFORE (inpatient [+180 days])
-inner = BEFORE(dm_or, ip, b_offset=180)
+inner = BEFORE(dm_or, ip, offset=180)
 
 # inner BEFORE covid
 outer = BEFORE(inner, covid)
