@@ -27,7 +27,7 @@ from python_to_YAML import (
     BEFORE,
 )
 
-# ---------------- Demographics (same as before) ----------------
+# ---------------- Demographics ----------------
 demo_incl = Demographics(gender="female", min_birth_year=2000, max_birth_year=2020)
 
 # ---------------- Group [0]: OR over two visit_occurrence leaves ---------------------------

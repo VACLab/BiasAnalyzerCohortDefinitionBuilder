@@ -1,0 +1,26 @@
+inclusion_criteria:
+  demographics:
+    max_birth_year: 1960
+  temporal_events:
+  - operator: 'AND'
+    events:
+    - operator: 'OR'
+      events:
+      - event_type: 'condition_occurrence'
+        event_concept_id: 437233
+        event_instance: 1
+        offset: -730
+      - event_type: 'condition_occurrence'
+        event_concept_id: 133154
+        event_instance: 1
+        offset: -730
+    - operator: 'OR'
+      events:
+      - event_type: 'condition_occurrence'
+        event_concept_id: 437233
+        event_instance: 1
+        offset: 730
+      - event_type: 'condition_occurrence'
+        event_concept_id: 133154
+        event_instance: 1
+        offset: 730

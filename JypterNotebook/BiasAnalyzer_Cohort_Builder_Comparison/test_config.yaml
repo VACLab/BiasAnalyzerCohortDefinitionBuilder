@@ -1,0 +1,9 @@
+# example configuration for BiasAnalyzer
+
+root_omop_cdm_database:
+  database_type: postgresql
+  username: shuhanlu97
+  password: 354Y3N9MJwFpKSjdwz7JTfPm
+  hostname: 172.25.15.19
+  database: vaclab
+  port: 5432
