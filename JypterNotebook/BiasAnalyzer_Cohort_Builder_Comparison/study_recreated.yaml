@@ -1,0 +1,10 @@
+inclusion_criteria:
+  demographics:
+    gender: 'female'
+    min_birth_year: 2000
+    max_birth_year: 2020
+  temporal_events:
+  - operator: 'AND'
+    events:
+    - event_type: 'condition_occurrence'
+      event_concept_id: 37311061
