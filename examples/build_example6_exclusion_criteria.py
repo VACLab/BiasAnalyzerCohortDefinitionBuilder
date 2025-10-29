@@ -4,7 +4,7 @@ Example 6: Inclusion + Exclusion criteria
 - Exclusion: Heart Failure
 Shows how to populate 'exclusion_criteria' alongside 'inclusion_criteria'.
 """
-from python_to_YAML import ConditionOccurrence, Demographics, CohortYAML
+from CohortDefinition import ConditionOccurrence, Demographics, CohortCriteria
 
 # Optional demographics on inclusion side
 demo = Demographics(gender="male")
@@ -15,10 +15,10 @@ t2dm = ConditionOccurrence(event_concept_id=201826)
 # Exclusion: Heart failure
 hf = ConditionOccurrence(event_concept_id=316139)
 
-# Build with both sides; relies on new 'exclusion_blocks' support in CohortYAML
-cohort = CohortYAML(
+# Build with both sides; relies on new 'exclusion_blocks' support in CohortCriteria
+cohort = CohortCriteria(
     demographics=demo,
     temporal_blocks=[t2dm],     # inclusion
     exclusion_blocks=[hf],      # exclusion
 )
-cohort.save_yaml("examples/example6.yaml")
+cohort.save("examples/example6.yaml")

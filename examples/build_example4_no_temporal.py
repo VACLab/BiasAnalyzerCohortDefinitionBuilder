@@ -2,7 +2,7 @@
 Example 4: Demographics only: female, born between 2000 and 2020 (inclusive).
 """
 
-from python_to_YAML import Demographics, CohortYAML
+from CohortDefinition import Demographics, CohortCriteria
 
 demo = Demographics(
     gender="female",
@@ -10,6 +10,6 @@ demo = Demographics(
     max_birth_year=2020,
 )
 
-cohort = CohortYAML(demographics=demo)
+cohort = CohortCriteria(demographics=demo)
 
-cohort.save_yaml("examples/example4.yaml")
+cohort.save("examples/example4.yaml")

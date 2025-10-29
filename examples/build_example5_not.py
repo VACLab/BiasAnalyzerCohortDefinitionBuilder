@@ -3,9 +3,9 @@ Example 5: Test NOT operator alone
 Goal: Build a cohort that includes patients who do NOT have heart failure diagnosis.
 """
 
-from python_to_YAML import (
+from CohortDefinition import (
     ConditionOccurrence,
-    CohortYAML,
+    CohortCriteria,
     NOT,
 )
 
@@ -16,9 +16,9 @@ hf_dx = ConditionOccurrence(
 
 not_hf = NOT(hf_dx)
 
-cohort = CohortYAML(
+cohort = CohortCriteria(
     temporal_blocks=[not_hf]
 )
 
 print(cohort.to_yaml())
-cohort.save_yaml("examples/example5.yaml")
+cohort.save("examples/example5.yaml")

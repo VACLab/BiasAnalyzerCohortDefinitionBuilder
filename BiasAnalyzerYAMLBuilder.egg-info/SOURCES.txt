@@ -5,7 +5,7 @@ BiasAnalyzerYAMLBuilder.egg-info/SOURCES.txt
 BiasAnalyzerYAMLBuilder.egg-info/dependency_links.txt
 BiasAnalyzerYAMLBuilder.egg-info/requires.txt
 BiasAnalyzerYAMLBuilder.egg-info/top_level.txt
-python_to_YAML/__init__.py
-python_to_YAML/builder.py
-python_to_YAML/events.py
-python_to_YAML/logic.py
+CohortDefinition/__init__.py
+CohortDefinition/builder.py
+CohortDefinition/events.py
+CohortDefinition/logic.py

@@ -28,10 +28,10 @@ It allows researchers to construct complex cohort logic (e.g., temporal relation
 ## Project Structure
 
 ```text
-python_to_YAML/
-├── python_to_YAML/
+CohortDefinition/
+├── CohortDefinition/
 │   ├── __init__.py
-│   ├── builder.py              # Core YAML builder & CohortYAML class
+│   ├── builder.py              # Core YAML builder & CohortCriteria class
 │   ├── events.py               # Event primitives (Dx, Encounters, etc.)
 │   └── logic.py                # Logical & temporal operators
 ├── examples/

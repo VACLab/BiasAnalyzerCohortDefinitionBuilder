@@ -1,0 +1,6 @@
+inclusion_criteria:
+  temporal_events:
+    - operator: 'AND'
+      events:
+        - event_type: 'condition_occurrence'
+          event_concept_id: 37311061 # COVID condition

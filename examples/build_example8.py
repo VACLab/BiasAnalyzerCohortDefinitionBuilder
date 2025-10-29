@@ -1,8 +1,8 @@
 # example 8: Patients over 65 who have been diagnosed with multiple myeloma (C90.0) or plasma cell leukemia (C90.1), 
 # gather data for 2 years prior to initial diagnosis and 2 years after.
 
-from python_to_YAML import (
-    ConditionOccurrence, Demographics, CohortYAML, OR, AND
+from CohortDefinition import (
+    ConditionOccurrence, Demographics, CohortCriteria, OR, AND
 )
 
 # Demographics: Born ≤ 1960
@@ -21,11 +21,11 @@ group_B = OR(mm_after, pcl_after)  # strictly binary
 # ---------- Top-level AND over the two OR groups ----------
 rule = AND(group_A, group_B)  # strictly binary
 
-cohort = CohortYAML(
+cohort = CohortCriteria(
     demographics=demo,
     temporal_blocks=[rule],   # single operator block → 原样进 temporal_events
 )
 
-cohort.save_yaml("examples/example8.yaml")
+cohort.save("examples/example8.yaml")
 #print(cohort.to_yaml(sort_keys=False))
 print(cohort.to_yaml())

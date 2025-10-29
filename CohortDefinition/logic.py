@@ -1,20 +1,22 @@
+# logic.py
 """
-logic.py
 High-level logical helpers for building cohort queries.
 
-- AND(*ops) -> TemporalBlock
-- OR(*ops)  -> TemporalBlock
-- BEFORE(a, b, b_offset=None) -> dict
-- AFTER(a, b, a_offset=None)  -> dict // currently not implemented
+Users compose queries with functions (no direct YAML manipulation):
+- AND(a, b)     -> TemporalBlock
+- OR(a, b)      -> TemporalBlock
+- BEFORE(a, b)  -> dict (operator block)
+- NOT(x)        -> dict (operator block)
 """
 
-from typing import Union, Optional, Iterable, Tuple
-from python_to_YAML.builder import TemporalBlock, TOKEN, SingleQuoted
-from python_to_YAML.events import Event
+from typing import Union, Optional
+from CohortDefinition.builder import TemporalBlock, TOKEN, SingleQuoted
+from CohortDefinition.events import Event
 
 Operand = Union[Event, TemporalBlock, dict]
 
 def _as_yaml(x: Operand) -> dict:
+    """Normalize operand to a YAML-ready dict."""
     if isinstance(x, Event):
         return x.to_yaml_event()
     if isinstance(x, TemporalBlock):
@@ -24,10 +26,9 @@ def _as_yaml(x: Operand) -> dict:
     raise TypeError(f"Unsupported operand type: {type(x)}")
 
 def _require_exact_arity(fn_name: str, got: int, expected: int) -> None:
+    """Raise a consistent ValueError on wrong arity."""
     if got != expected:
         raise ValueError(f"{fn_name}() requires exactly {expected} operand(s), got {got}.")
-
-# ---------- Strict-arity operators ----------
 
 def AND(*ops: Operand) -> TemporalBlock:
     """Binary conjunction (exactly 2 operands)."""
@@ -46,9 +47,9 @@ def OR(*ops: Operand) -> TemporalBlock:
 def BEFORE(a: Operand, b: Operand, offset: Optional[int] = None) -> dict:
     """
     'a BEFORE b' (exactly 2 operands).
-    If `offset` is provided, attach to the second event as `offset: <int>`.
+    If `offset` is provided, it is attached to the second event as `offset: <int>`.
     """
-    _require_exact_arity("BEFORE", 2, 2)  # signature enforces 2, keep runtime check for consistency
+    _require_exact_arity("BEFORE", 2, 2)  # consistent runtime check
     a_yaml = _as_yaml(a)
     b_yaml = _as_yaml(b)
     if offset is not None:
@@ -57,7 +58,6 @@ def BEFORE(a: Operand, b: Operand, offset: Optional[int] = None) -> dict:
 
 def NOT(x: Operand, *rest: Operand) -> dict:
     """Unary negation (exactly 1 operand)."""
-    # If users mistakenly pass extra operands, surface a consistent ValueError
     if rest:
         _require_exact_arity("NOT", 1 + len(rest), 1)
     x_yaml = _as_yaml(x)

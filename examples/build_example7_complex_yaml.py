@@ -16,12 +16,12 @@ inclusion_criteria.temporal_events:
 exclusion_criteria: (placeholder—replace to match teacher’s exact block if needed)
 """
 
-from python_to_YAML import (
+from CohortDefinition import (
     ConditionOccurrence,
     VisitOccurrence,
     DateEvent,
     Demographics,
-    CohortYAML,
+    CohortCriteria,
     OR,
     AND,
     BEFORE,
@@ -57,12 +57,12 @@ demo_excl = Demographics(min_birth_year=2010)
 hf_excl   = ConditionOccurrence(event_concept_id=316139)
 
 # ---------------- Build & Save --------------------------------------------------------------
-cohort = CohortYAML(
+cohort = CohortCriteria(
     demographics=demo_incl,
     temporal_blocks=[group0, group1],         # TWO parallel temporal groups
     exclusion_demographics=demo_excl,
     exclusion_blocks=[hf_excl],
 )
 
-cohort.save_yaml("examples/example7.yaml")
+cohort.save("examples/example7.yaml")
 #print(cohort.to_yaml(sort_keys=False))
