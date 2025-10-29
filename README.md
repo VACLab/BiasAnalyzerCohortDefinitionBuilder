@@ -1,6 +1,6 @@
 # BiasAnalyzerCohortDefinitionBuilder
 
-A Python-based package for generating **YAML cohort definition files** compatible with [BiasAnalyzer](https://github.com/VACLab/BiasAnalyzer).  
+A Python-based package for generating **Cohort definition files** compatible with [BiasAnalyzer](https://github.com/VACLab/BiasAnalyzer).  
 It allows researchers to construct complex cohort logic (e.g., temporal relationships, event sequences, logical filters) directly from Python.
 
 ---
@@ -31,7 +31,7 @@ It allows researchers to construct complex cohort logic (e.g., temporal relation
 CohortDefinition/
 ├── CohortDefinition/
 │   ├── __init__.py
-│   ├── builder.py              # Core YAML builder & CohortCriteria class
+│   ├── builder.py              # Core Cohort builder & CohortCriteria class
 │   ├── events.py               # Event primitives (Dx, Encounters, etc.)
 │   └── logic.py                # Logical & temporal operators
 ├── examples/
