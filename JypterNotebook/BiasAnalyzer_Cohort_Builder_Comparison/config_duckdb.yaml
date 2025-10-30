@@ -3,5 +3,5 @@ root_omop_cdm_database:
   username: dummy
   password: dummy
   hostname: dummy
-  database: /Users/sherrylu/Documents/UNC/26Fall/VAC Lab/BiasAnalyzerYAMLBuilder/data/synpuf_100k_omop_54.duckdb
+  database: /Users/sherrylu/Documents/UNC/26Fall/VAC Lab/data/synpuf_100k_omop_54.duckdb
   port: 5432

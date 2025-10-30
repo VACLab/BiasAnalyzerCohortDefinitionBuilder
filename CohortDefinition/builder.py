@@ -2,6 +2,10 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Union, Dict, Any
 from pathlib import Path
+import os
+import tempfile
+import weakref
+import atexit
 import yaml
 
 from CohortDefinition.events import Event
@@ -10,6 +14,23 @@ from CohortDefinition.events import Event
 class _Token:
     pass
 TOKEN = _Token()
+
+# Track all temp YAML files for best-effort cleanup at interpreter exit
+_TEMP_YAML_PATHS = set()
+
+def _cleanup_all_temp_yaml():
+    """Best-effort remove all temp YAML files created by CohortCriteria."""
+    for p in list(_TEMP_YAML_PATHS):
+        try:
+            if os.path.exists(p):
+                os.remove(p)
+        except Exception:
+            pass
+        finally:
+            _TEMP_YAML_PATHS.discard(p)
+
+atexit.register(_cleanup_all_temp_yaml)
+
 
 # ---------- Single-quoted string support ----------
 class SingleQuoted(str):
@@ -212,3 +233,68 @@ class CohortCriteria:
     def save_yaml(self, path: Union[str, Path]) -> Path:
         """DEPRECATED: use .save(path) instead."""
         return self.save(path)
+    
+    # Track a lazily-created temp YAML path for this instance (hidden from users)
+    _tmp_yaml_path: Optional[str] = field(default=None, repr=False, compare=False)
+    _tmp_finalizer: Optional[weakref.finalize] = field(default=None, repr=False, compare=False)
+
+    # ----------------- INTERNAL: ensure a temp .yaml exists for path-based APIs -----------------
+    def _ensure_temp_yaml_file(self, overwrite: bool = True) -> str:
+        """
+        Create (or refresh) a temporary .yaml file that mirrors the CURRENT cohort definition.
+        This lets external libraries that only accept a YAML *file path* consume this object
+        directly without exposing YAML to end users.
+        """
+        # Create a new temp file if none exists
+        if not self._tmp_yaml_path:
+            fd, path = tempfile.mkstemp(prefix="cohort_", suffix=".yaml")
+            os.close(fd)  # we will reopen with text mode
+            self._tmp_yaml_path = path
+            _TEMP_YAML_PATHS.add(path)
+
+            # Register object-finalizer to auto-delete when this cohort is GC'd
+            self._tmp_finalizer = weakref.finalize(self, self._cleanup_temp_yaml_silent, path)
+
+        # (Re)write the latest YAML into the temp file if requested
+        if overwrite and self._tmp_yaml_path:
+            try:
+                with open(self._tmp_yaml_path, "w", encoding="utf-8") as f:
+                    f.write(self._to_yaml(sort_keys=False))
+            except Exception:
+                # If anything goes wrong, fall back to creating a fresh file
+                fd, path = tempfile.mkstemp(prefix="cohort_", suffix=".yaml")
+                os.close(fd)
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write(self._to_yaml(sort_keys=False))
+                # update registry
+                if self._tmp_yaml_path:
+                    _TEMP_YAML_PATHS.discard(self._tmp_yaml_path)
+                self._tmp_yaml_path = path
+                _TEMP_YAML_PATHS.add(path)
+                self._tmp_finalizer = weakref.finalize(self, self._cleanup_temp_yaml_silent, path)
+
+        return self._tmp_yaml_path
+
+    @staticmethod
+    def _cleanup_temp_yaml_silent(path: str) -> None:
+        """Internal: silent best-effort delete for a single temp file."""
+        try:
+            if os.path.exists(path):
+                os.remove(path)
+        except Exception:
+            pass
+        finally:
+            _TEMP_YAML_PATHS.discard(path)
+
+    # ----------------- PATH-LIKE SURFACE: make the object behave like a YAML path -----------------
+    def __fspath__(self) -> str:
+        """
+        Allow `open(cohort)` / `os.fspath(cohort)` to work by returning a real temp .yaml path.
+        """
+        return self._ensure_temp_yaml_file(overwrite=True)
+
+    def endswith(self, suffix: str) -> bool:
+        """
+        Some external APIs branch on `.endswith('.yaml')`. We proxy that to the temp path.
+        """
+        return self._ensure_temp_yaml_file(overwrite=False).endswith(suffix)
