@@ -1,0 +1,21 @@
+snomed_code,ohdsi_concept_id,description
+84114007,316139,Heart failure
+195967001,201826,Type 2 diabetes mellitus
+46635009,255573,Hypertension
+44054006,201254,Type 1 diabetes mellitus
+235719002,312437,Chronic kidney disease
+38341003,314666,Myocardial infarction
+128613002,319835,Pneumonia
+3723001,4329847,Asthma
+254837009,4034890,Obesity
+62315008,4318557,Chronic obstructive pulmonary disease (COPD)
+414545008,312605,Ischemic heart disease
+160903007,45763652,Anemia
+22298006,319844,Myocardial infarction (acute)
+399211009,315831,Stroke (cerebrovascular accident)
+840539006,37311061,COVID-19
+312912005,45766194,Depression
+367336001,315296,Heart valve disorder
+190406000,37016179,Chronic liver disease
+55680006,319826,Pulmonary embolism
+11198006,319889,Angina pectoris
