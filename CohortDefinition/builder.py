@@ -143,12 +143,13 @@ class CohortCriteria:
 
     # ----------------- Public UX: print() shows YAML -----------------
     def __str__(self) -> str:
-        """Pretty string form: YAML."""
+        """Pretty string form: YAML for print()."""
         return self._to_yaml(sort_keys=False)
 
     def __repr__(self) -> str:
-        """REPL-friendly representation: YAML."""
-        return self.__str__()
+        """Compact developer representation, not YAML."""
+        return f"<CohortCriteria {len(self.temporal_blocks or [])} blocks>"
+
 
     # ----------------- Internal build helpers -----------------
     def _build_temporal_section(self, blocks: List[Union[Event, Dict[str, Any], "TemporalBlock"]]) -> List[Dict[str, Any]]:
