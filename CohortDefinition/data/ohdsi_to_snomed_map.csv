@@ -1,4 +1,4 @@
-snomed_code,ohdsi_concept_id,description
+ohdsi_concept_id,snomed_code,description
 84114007,316139,Heart failure
 195967001,201826,Type 2 diabetes mellitus
 46635009,255573,Hypertension

@@ -9,17 +9,17 @@ from CohortDefinition import (
 
 # 1) Define the event using OHDSI concept_id
 hf_ohdsi = ConditionOccurrence(
-    event_concept_id=316139,   # Heart failure
+    event_concept_id=84114007,   # Heart failure
     id_type="OHDSI",
 )
 
 # 2) Define the event using SNOMED
 hf_snomed = ConditionOccurrence(
-    event_concept_id=84114007, # Heart failure (SNOMED)
+    event_concept_id=316139, # Heart failure (SNOMED)
     id_type="SNOMED",
 )
 
-# 3) Build two cohorts
+# 3) Build two cohort
 cohort_ohdsi = CohortCriteria(temporal_blocks=[hf_ohdsi])
 cohort_snomed = CohortCriteria(temporal_blocks=[hf_snomed])
 
